@@ -2,14 +2,16 @@ package uz.dkamaloff.lycheeconverter
 
 import net.aquadc.persistence.android.json.json
 import net.aquadc.persistence.android.json.tokens
-import net.aquadc.persistence.tokens.readListOf
+import net.aquadc.persistence.struct.Schema
+import net.aquadc.persistence.tokens.readAs
+import net.aquadc.persistence.type.DataType
 import okhttp3.RequestBody
 import okhttp3.ResponseBody
 import retrofit2.Converter
 import retrofit2.Retrofit
 import java.lang.reflect.Type
 
-class StructConverterFactory : Converter.Factory() {
+class StructConverterFactory(private val schemasMap: Map<Type, Schema<*>>) : Converter.Factory() {
 
     override fun requestBodyConverter(
         type: Type,
@@ -25,7 +27,7 @@ class StructConverterFactory : Converter.Factory() {
         annotations: Array<Annotation>,
         retrofit: Retrofit
     ): Converter<ResponseBody, *>? {
-        return super.responseBodyConverter(type, annotations, retrofit)
+        return StructResponseBodyConverter(schemasMap.getValue(type))
     }
 }
 
@@ -35,15 +37,21 @@ class StructRequestBodyConverter<T> : Converter<T, RequestBody> {
     }
 }
 
-class StructResponseBodyConverter<T> : Converter<ResponseBody, T> {
+class StructResponseBodyConverter<T>(private val dataType: DataType<T>) : Converter<ResponseBody, T> {
 
     override fun convert(value: ResponseBody): T? {
         val json = value.string()
         try {
-            return json.reader().json().tokens().readListOf()
+            return json.reader().json().tokens().readAs(dataType)
         } catch (e: Exception) {
             println(e)
             throw e
         }
     }
+}
+
+object User : Schema<User>()
+
+fun main() {
+    val converterFactory = StructConverterFactory(mapOf(User::class.java to User))
 }
