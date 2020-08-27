@@ -1,0 +1,25 @@
+apply plugin: 'com.android.library'
+apply plugin: 'kotlin-android'
+
+android {
+    compileSdkVersion 30
+
+    defaultConfig {
+        minSdkVersion 1
+        targetSdkVersion 30
+        versionCode 1
+        versionName "1.0"
+    }
+}
+
+repositories {
+    maven { url 'https://dl.bintray.com/miha-x64/maven' }
+}
+
+dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation "com.squareup.retrofit2:retrofit:2.9.0"
+    implementation "net.aquadc.properties:android-json:0.0.14"
+    implementation "net.aquadc.properties:persistence:0.0.14"
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+}
